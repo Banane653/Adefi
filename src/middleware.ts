@@ -1,0 +1,54 @@
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANONYMOUS_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          response = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // PROTECTION DE LA ROUTE /ADMIN
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const myAdminEmail = "natrist@hotmail.com" // 👈 METS TON EMAIL ICI
+
+    if (!user || user.email !== myAdminEmail) {
+      // Si pas connecté ou pas le bon email -> redirection vers login
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  return response
+}
+
+export const config = {
+  matcher: [
+    /*
+     * On applique le middleware sur toutes les routes sauf les fichiers statiques (images, etc.)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+}

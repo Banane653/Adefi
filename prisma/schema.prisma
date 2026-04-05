@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id
+  email         String   @unique
+  firstName     String?  // Prénom
+  lastName      String?  // Nom
+  companyName   String?  // Nom de l'entreprise
+  businessType  String?  
+  vibe          String?  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  url       String   @unique
+  platform  String
+  views     Int      @default(0)
+  thumbnail String?
+  createdAt DateTime @default(now())
+  tags      Tag[]    @relation("VideoToTag")
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  type   TagType
+  videos Video[] @relation("VideoToTag")
+}
+
+enum TagType {
+  NICHE
+  FORMAT
+}
