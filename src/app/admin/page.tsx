@@ -1,6 +1,7 @@
 import { addVideo, deleteVideo } from "../actions/video";
 import prisma from "@/lib/prisma";
 import DeleteButton from "@/components/DeleteButton"; // Import du bouton
+import { BUSINESS_CATEGORIES, VIBE_TYPES } from "@/lib/constants";
 
 export default async function AdminPage() {
     const existingTags = await prisma.tag.findMany();
@@ -47,11 +48,11 @@ export default async function AdminPage() {
             <div>
             <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Catégorie cible</label>
             <select name="category" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-                <option value="Restaurateur">Restaurateur</option>
-                <option value="Coiffeur">Coiffeur</option>
-                <option value="Boutique">Boutique en ligne</option>
-                <option value="Coach">Coach / Formateur</option>
-                <option value="Immobilier">Immobilier</option>
+                {BUSINESS_CATEGORIES.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                </option>
+                ))}
             </select>
             </div>
 
@@ -59,10 +60,11 @@ export default async function AdminPage() {
             <div>
             <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Vibe du contenu</label>
             <select name="vibe" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-                <option value="Dynamique">Dynamique ⚡️</option>
-                <option value="Esthétique">Esthétique ✨</option>
-                <option value="Éducatif">Éducatif 🧠</option>
-                <option value="Humour">Humour 😂</option>
+                {VIBE_TYPES.map((vibe) => (
+                <option key={vibe.value} value={vibe.value}>
+                    {vibe.label}
+                </option>
+                ))}
             </select>
             </div>
         </div>

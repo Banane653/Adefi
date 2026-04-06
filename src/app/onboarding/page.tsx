@@ -1,4 +1,5 @@
 import { completeOnboarding } from "../actions/user";
+import { BUSINESS_CATEGORIES, VIBE_TYPES } from "@/lib/constants";
 
 export default function OnboardingPage() {
   return (
@@ -30,25 +31,41 @@ export default function OnboardingPage() {
 
           <hr className="border-zinc-100 dark:border-zinc-800 my-2" />
 
-          {/* Section Métier & Vibe */}
+          {/* Section Métier */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Secteur d'activité</label>
-            <select name="businessType" required className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500">
+            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">
+              Secteur d'activité
+            </label>
+            <select 
+              name="businessType" 
+              required 
+              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+            >
               <option value="">Sélectionne...</option>
-              <option value="Restaurateur">Restaurateur</option>
-              <option value="Coiffeur">Coiffeur / Beauté</option>
-              <option value="Agent Immobilier">Agent Immobilier</option>
-              <option value="Coach Sportif">Coach Sportif</option>
+              {BUSINESS_CATEGORIES.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
             </select>
           </div>
 
+          {/* Section Vibe */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Style de vidéos (Vibe)</label>
-            <select name="vibe" required className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500">
+            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">
+              Style de vidéos (Vibe)
+            </label>
+            <select 
+              name="vibe" 
+              required 
+              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+            >
               <option value="">Quelle ambiance ?</option>
-              <option value="Humour">Humoristique & Fun</option>
-              <option value="Esthétique">Esthétique & Calme</option>
-              <option value="Dynamique">Énergique & Rapide</option>
+              {VIBE_TYPES.map((vibe) => (
+                <option key={vibe.value} value={vibe.value}>
+                  {vibe.label}
+                </option>
+              ))}
             </select>
           </div>
 

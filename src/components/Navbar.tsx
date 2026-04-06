@@ -23,7 +23,7 @@ export default async function Navbar() {
         
         {/* Le Logo à gauche */}
         <Link href="/" className="font-extrabold text-xl tracking-tighter">
-          Vidéos<span className="text-blue-600">Pro</span>
+          Ade<span className="text-blue-600">Fi</span>
         </Link>
 
         {/* La zone de droite (Bouton Login OU Menu Déroulant) */}

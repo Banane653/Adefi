@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VidéosPro - Automatisation Vidéo",
+  title: "Adefi - Automatisation Vidéo",
   description: "Générez des idées de vidéos adaptées à votre entreprise",
 };
 
