@@ -55,6 +55,16 @@ export function VideoCard({ title, embedUrl, views, likes, tags, platform }: Vid
         <Badge variant="outline" className="capitalize">
           {platform}
         </Badge>
+        {/* Bouton de secours si l'iframe est bloquée par le navigateur */}
+        <a 
+            href={embedUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium text-zinc-600 bg-zinc-100 hover:bg-zinc-200 dark:text-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-md transition-colors"
+          >
+            <span>Voir la vidéo originale</span>
+            <ExternalLink className="size-4" />
+        </a>
       </CardFooter>
     </Card>
   );
