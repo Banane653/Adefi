@@ -15,41 +15,87 @@ export default async function AdminPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">🛠️ Panneau Admin</h1>
         
-        <form action={addVideo} className="space-y-6 bg-zinc-50 dark:bg-zinc-900 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-          <div>
-            <label className="block text-sm font-medium mb-2">URL de la vidéo</label>
-            <input name="url" type="url" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent" placeholder="https://..." />
-          </div>
+        <form action={addVideo} className="space-y-6 bg-zinc-50 dark:bg-zinc-900 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+  
+        {/* CHAMP TITRE (Obligatoire pour Prisma) */}
+        <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Titre de la vidéo</label>
+            <input 
+            name="title" 
+            type="text" 
+            required 
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+            placeholder="Ex: 3 astuces pour doubler vos vues" 
+            />
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Plateforme</label>
-              <select name="platform" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-                <option value="tiktok">TikTok</option>
-                <option value="instagram">Instagram</option>
-                <option value="youtube">YouTube</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Tags (séparés par des virgules)</label>
-              <input name="tags" type="text" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent" placeholder="tuto, inspiration, tech" />
-            </div>
-          </div>
+        {/* CHAMP URL (Sert à détecter la plateforme + embed) */}
+        <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">URL de la vidéo (TikTok ou Instagram)</label>
+            <input 
+            name="url" 
+            type="url" 
+            required 
+            className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+            placeholder="https://www.tiktok.com/@user/video/..." 
+            />
+            <p className="mt-1 text-xs text-zinc-500 italic">La plateforme est détectée automatiquement.</p>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+            {/* CATÉGORIE (Doit matcher avec tes choix d'onboarding) */}
             <div>
-              <label className="block text-sm font-medium mb-2">Nombre de vues</label>
-              <input name="views" type="number" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent" placeholder="0" />
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Catégorie cible</label>
+            <select name="category" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                <option value="Restaurateur">Restaurateur</option>
+                <option value="Coiffeur">Coiffeur</option>
+                <option value="Boutique">Boutique en ligne</option>
+                <option value="Coach">Coach / Formateur</option>
+                <option value="Immobilier">Immobilier</option>
+            </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Likes</label>
-              <input name="likes" type="number" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent" placeholder="0" />
-            </div>
-          </div>
 
-          <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">
-            Ajouter au Hub
-          </button>
+            {/* VIBE */}
+            <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Vibe du contenu</label>
+            <select name="vibe" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                <option value="Dynamique">Dynamique ⚡️</option>
+                <option value="Esthétique">Esthétique ✨</option>
+                <option value="Éducatif">Éducatif 🧠</option>
+                <option value="Humour">Humour 😂</option>
+            </select>
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+            {/* TAGS (Gestion simplifiée) */}
+            <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Tags (séparés par des virgules)</label>
+            <input 
+                name="tags" 
+                type="text" 
+                className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 outline-none" 
+                placeholder="tuto, inspiration, coulisses" 
+            />
+            {/* Sélecteur de type caché ou visible selon tes besoins, ici on peut forcer NICHE par défaut si tu veux */}
+            <input type="hidden" name="tagType" value="NICHE" />
+            </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Vues réelles</label>
+            <input name="views" type="number" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800" placeholder="0" />
+            </div>
+            <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Likes réels</label>
+            <input name="likes" type="number" className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800" placeholder="0" />
+            </div>
+        </div>
+
+        <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 active:scale-[0.98]">
+            Ajouter au Hub ✨
+        </button>
         </form>
 
         <div className="mt-8">

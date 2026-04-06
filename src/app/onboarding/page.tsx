@@ -46,7 +46,7 @@ export default function OnboardingPage() {
             <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Style de vidéos (Vibe)</label>
             <select name="vibe" required className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Quelle ambiance ?</option>
-              <option value="Humoristique">Humoristique & Fun</option>
+              <option value="Humour">Humoristique & Fun</option>
               <option value="Esthétique">Esthétique & Calme</option>
               <option value="Dynamique">Énergique & Rapide</option>
             </select>

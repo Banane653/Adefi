@@ -1,90 +1,73 @@
-import prisma from "@/lib/prisma";
-import { addVideo } from "./actions/video";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Video, Sparkles, Target } from "lucide-react";
 
-console.log("Ma DATABASE_URL est :", process.env.DATABASE_URL ? "Trouvée ✅" : "Vide ❌");
-
-export default async function Home() {
-  // On récupère les vidéos directement depuis Supabase via Prisma
-  const videos = await prisma.video.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans text-zinc-950 dark:text-zinc-50">
-      <main className="max-w-4xl mx-auto py-20 px-6">
-        
-        {/* Header */}
-        <div className="mb-12 text-center sm:text-left">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Curator Video Hub 🎥
-          </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            Enregistrez vos meilleures trouvailles TikTok et Instagram.
-          </p>
-        </div>
+    <div className="relative isolate">
+      {/* Background décoratif (Optionnel mais stylé) */}
+      <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+        <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
+      </div>
 
-        {/* Formulaire d'ajout rapide */}
-        <section className="mb-16 p-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 mb-4">
-            Ajouter une pépite
-          </h2>
-          {/* On passe directement addVideo, Next.js s'occupe de lier le formData automatiquement */}
-          <form 
-            action={addVideo} // 👈 PASSE LA FONCTION DIRECTEMENT ICI
-            className="flex flex-col sm:flex-row gap-3"
-          >
-            <input
-              name="url"
-              type="url"
-              placeholder="Collez l'URL (TikTok, Insta...)"
-              required
-              className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <select 
-              name="platform" 
-              className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900"
-            >
-              <option value="tiktok">TikTok</option>
-              <option value="instagram">Instagram</option>
-            </select>
-            <button
-              type="submit"
-              className="px-6 py-3 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-medium rounded-xl hover:opacity-90 transition-opacity"
-            >
-              Enregistrer
-            </button>
-          </form>
-        </section>
-
-        {/* Liste des vidéos */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-6">Ma Bibliothèque</h2>
-          <div className="grid gap-4">
-            {videos.length === 0 && (
-              <p className="text-zinc-500 italic">Aucune vidéo enregistrée pour le moment...</p>
-            )}
-            {videos.map((video) => (
-              <div 
-                key={video.id} 
-                className="flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl shadow-sm"
-              >
-                <div className="overflow-hidden">
-                  <p className="font-medium truncate max-w-[250px] sm:max-w-md">
-                    {video.url}
-                  </p>
-                  <span className="text-xs text-zinc-400 uppercase font-bold">
-                    {video.platform}
-                  </span>
-                </div>
-                <div className="text-right text-xs text-zinc-400">
-                  {new Date(video.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
+      {/* SECTION HERO */}
+      <section className="mx-auto max-w-4xl py-24 sm:py-32 px-6">
+        <div className="text-center">
+          <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-700/10 mb-8 dark:bg-blue-900/30 dark:text-blue-400">
+            Nouveau : Propulsé par l'IA ⚡️
           </div>
-        </section>
+          
+          <h1 className="text-5xl font-extrabold tracking-tight text-zinc-900 sm:text-7xl dark:text-white">
+            Trouvez les vidéos qui <span className="text-blue-600">cartonnent</span> pour votre commerce.
+          </h1>
+          
+          <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            Arrêtez de deviner. Obtenez des idées de contenus personnalisées selon votre secteur et votre "vibe" pour attirer plus de clients sur TikTok et Instagram.
+          </p>
 
-      </main>
+          <div className="mt-10 flex items-center justify-center gap-x-6">
+            <Link href="/login">
+              <Button size="lg" className="rounded-full px-8 text-md font-semibold gap-2 shadow-lg hover:shadow-blue-500/20 transition-all">
+                Commencer gratuitement <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link href="#features" className="text-sm font-semibold leading-6 text-zinc-900 dark:text-zinc-100">
+              Voir comment ça marche <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION PETITS POINTS FORTS (Grille rapide) */}
+      <section id="features" className="py-24 bg-zinc-50 dark:bg-zinc-900/50">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-blue-500/20 shadow-lg">
+                <Target className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold">Ultra-Ciblé</h3>
+              <p className="mt-2 text-zinc-500">Des idées adaptées à votre métier : du resto au salon de coiffure.</p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-600 text-white shadow-purple-500/20 shadow-lg">
+                <Sparkles className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold">Zéro Panne d'Inspiration</h3>
+              <p className="mt-2 text-zinc-500">Un flux constant de tendances décortiquées pour vous.</p>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-600 text-white shadow-orange-500/20 shadow-lg">
+                <Video className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold">Prêt à Filmer</h3>
+              <p className="mt-2 text-zinc-500">Scripts et exemples visuels inclus pour chaque recommandation.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
