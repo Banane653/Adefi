@@ -37,6 +37,10 @@ export function UserDropdown({ firstName }: { firstName: string | null }) {
         <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
           Dashboard
         </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => router.push("/feed")} className="cursor-pointer">
+          Mon feed
+        </DropdownMenuItem>
         
         {/* Tu pourras créer cette page /profil plus tard */}
         <DropdownMenuItem onClick={() => router.push("/profil")} className="cursor-pointer">

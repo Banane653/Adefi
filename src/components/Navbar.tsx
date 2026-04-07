@@ -22,7 +22,7 @@ export default async function Navbar() {
       <div className="flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
         
         {/* Le Logo à gauche */}
-        <Link href="/" className="font-extrabold text-xl tracking-tighter">
+        <Link href="/feed" className="font-extrabold text-xl tracking-tighter">
           Ade<span className="text-blue-600">Fi</span>
         </Link>
 
