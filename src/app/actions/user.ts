@@ -15,7 +15,7 @@ export async function completeOnboarding(formData: FormData) {
   const lastName = formData.get("lastName") as string;
   const companyName = formData.get("companyName") as string;
   const businessType = formData.get("businessType") as string;
-  const vibe = formData.get("vibe") as string;
+  const vibe = formData.getAll("vibe") as string[];
 
   await prisma.user.upsert({
     where: { id: user.id },

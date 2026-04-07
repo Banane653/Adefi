@@ -50,7 +50,7 @@ export default function OnboardingPage() {
             </select>
           </div>
 
-{/* Section Vibe */}
+          {/* Section Vibe */}
           <div>
             <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
               Style de vidéos (Vibe) - <span className="text-zinc-500 font-normal">Choix multiple</span>
