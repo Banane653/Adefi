@@ -41,7 +41,7 @@ export default async function DashboardPage() {
           <p className="text-xl font-medium">{dbUser.businessType}</p>
         </div>
         <div className="p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-transparent dark:border-zinc-800">
-          <p className="text-sm text-zinc-500 uppercase font-bold tracking-wider italic">Ta Vibe</p>
+          <p className="text-sm text-zinc-500 uppercase font-bold tracking-wider italic">Ton style</p>
           <p className="text-xl font-medium">{dbUser.vibe}</p>
         </div>
       </div>

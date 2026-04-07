@@ -26,7 +26,7 @@ model Video {
   views     Int      @default(0)
   likes     Int      @default(0)
   category  String // Pour le filtrage (ex: Restaurateur)
-  vibe      String // Pour le filtrage (ex: Dynamique)
+  vibe      String[] // Pour le filtrage (ex: Dynamique)
   tags      Tag[]
   createdAt DateTime @default(now())
 }

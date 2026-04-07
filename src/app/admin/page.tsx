@@ -58,14 +58,25 @@ export default async function AdminPage() {
 
             {/* VIBE */}
             <div>
-            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">Vibe du contenu</label>
-            <select name="vibe" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+              <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+                Vibes du contenu
+              </label>
+              <div className="flex flex-wrap gap-2">
                 {VIBE_TYPES.map((vibe) => (
-                <option key={vibe.value} value={vibe.value}>
+                  <label 
+                    key={vibe.value} 
+                    className="cursor-pointer has-[:checked]:bg-zinc-900 has-[:checked]:text-white dark:has-[:checked]:bg-white dark:has-[:checked]:text-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-full px-3 py-1.5 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 font-medium text-sm select-none"
+                  >
+                    <input 
+                      type="checkbox" 
+                      name="vibe" 
+                      value={vibe.value} 
+                      className="hidden" 
+                    />
                     {vibe.label}
-                </option>
+                  </label>
                 ))}
-            </select>
+              </div>
             </div>
         </div>
 

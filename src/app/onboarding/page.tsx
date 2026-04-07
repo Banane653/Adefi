@@ -50,23 +50,27 @@ export default function OnboardingPage() {
             </select>
           </div>
 
-          {/* Section Vibe */}
+{/* Section Vibe */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">
-              Style de vidéos (Vibe)
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Style de vidéos (Vibe) - <span className="text-zinc-500 font-normal">Choix multiple</span>
             </label>
-            <select 
-              name="vibe" 
-              required 
-              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Quelle ambiance ?</option>
+            <div className="flex flex-wrap gap-2">
               {VIBE_TYPES.map((vibe) => (
-                <option key={vibe.value} value={vibe.value}>
+                <label 
+                  key={vibe.value} 
+                  className="cursor-pointer has-[:checked]:bg-blue-600 has-[:checked]:text-white has-[:checked]:border-blue-600 dark:has-[:checked]:bg-blue-600 dark:has-[:checked]:text-white border border-zinc-200 dark:border-zinc-700 rounded-full px-4 py-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 font-medium text-sm select-none"
+                >
+                  <input 
+                    type="checkbox" 
+                    name="vibe" 
+                    value={vibe.value} 
+                    className="hidden" 
+                  />
                   {vibe.label}
-                </option>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           <button type="submit" className="w-full py-4 mt-4 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-bold rounded-2xl hover:opacity-90 transition-opacity">
