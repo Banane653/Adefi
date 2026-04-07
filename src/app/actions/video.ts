@@ -10,7 +10,7 @@ export async function addVideo(formData: FormData) {
     const title = formData.get("title") as string;
     const url = formData.get("url") as string;
     const category = formData.get("category") as string; // ex: Restaurateur
-    const vibe = formData.get("vibe") as string;         // ex: Dynamique
+    const vibe = formData.getAll("vibe") as string[];        // ex: Dynamique
     const views = parseInt(formData.get("views") as string) || 0;
     const likes = parseInt(formData.get("likes") as string) || 0;
     const tagsString = formData.get("tags") as string;
