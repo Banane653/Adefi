@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { ADMIN_EMAILS } from '@/lib/constants' 
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -33,11 +34,10 @@ export async function middleware(request: NextRequest) {
 
   // PROTECTION DE LA ROUTE /ADMIN
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    const myAdminEmail = "natrist@hotmail.com" // 👈 METS TON EMAIL ICI
 
-    if (!user || user.email !== myAdminEmail) {
+    if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
       // Si pas connecté ou pas le bon email -> redirection vers login
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL('/feed', request.url))
     }
   }
 

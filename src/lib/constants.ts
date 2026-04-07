@@ -16,3 +16,7 @@ export const BUSINESS_CATEGORIES = [
     // NOUVELLE VIBE ICI :
 
   ];
+
+  export const ADMIN_EMAILS = [
+    "natrist@hotmail.com",
+  ];
