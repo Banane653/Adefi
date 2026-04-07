@@ -21,7 +21,9 @@ export default async function FeedPage() {
   const videos = await prisma.video.findMany({
     where: {
         category: dbUser?.businessType ?? "", 
-        vibe: dbUser?.vibe ?? "",
+        vibe: {
+          hasSome: dbUser?.vibe || [], 
+        },
     },
     include: {
       tags: true, // On inclut les tags reliés

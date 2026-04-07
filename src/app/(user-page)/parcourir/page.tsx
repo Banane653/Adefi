@@ -13,7 +13,7 @@ export default async function ParcourirPage({
   // On construit l'objet de filtrage dynamiquement
   const whereClause: any = {};
   if (category) whereClause.category = category;
-  if (vibe) whereClause.vibe = vibe;
+  if (vibe) whereClause.vibe = { has: vibe };
 
   // Requête Prisma
   const videos = await prisma.video.findMany({
