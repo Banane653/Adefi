@@ -2,10 +2,12 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 import { UserDropdown } from "./UserDropdown";
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 export default async function Navbar() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const estAdmin = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
 
   let dbUser = null;
 
@@ -27,9 +29,13 @@ export default async function Navbar() {
         </Link>
 
         {/* La zone de droite (Bouton Login OU Menu Déroulant) */}
+
         <div>
           {user && dbUser ? (
-            <UserDropdown firstName={dbUser.firstName} />
+            <UserDropdown 
+            firstName={dbUser?.firstName || null} 
+            isAdmin={estAdmin} // 👈 On passe le résultat au menu
+          />
           ) : (
             <Link 
               href="/login" 

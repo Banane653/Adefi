@@ -12,13 +12,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-export function UserDropdown({ firstName }: { firstName: string | null }) {
+// 1. On ajoute isAdmin dans l'interface des props
+export function UserDropdown({ 
+  firstName, 
+  isAdmin 
+}: { 
+  firstName: string | null;
+  isAdmin: boolean; 
+}) {
   const router = useRouter();
   const supabase = createClient();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.refresh(); // Force la Navbar à se mettre à jour
+    router.refresh(); 
     router.push("/login");
   };
 
@@ -32,6 +39,20 @@ export function UserDropdown({ firstName }: { firstName: string | null }) {
       
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
+        
+        {/* 2. Affichage conditionnel : Uniquement pour les admins */}
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => router.push("/admin")} 
+              className="cursor-pointer font-bold text-blue-600 focus:text-blue-700 focus:bg-blue-50 dark:focus:bg-blue-950"
+            >
+              Panneau Admin
+            </DropdownMenuItem>
+          </>
+        )}
+        
         <DropdownMenuSeparator />
         
         <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer">
@@ -42,7 +63,6 @@ export function UserDropdown({ firstName }: { firstName: string | null }) {
           Mon feed
         </DropdownMenuItem>
         
-        {/* Tu pourras créer cette page /profil plus tard */}
         <DropdownMenuItem onClick={() => router.push("/profil")} className="cursor-pointer">
           Modifier mon profil
         </DropdownMenuItem>
