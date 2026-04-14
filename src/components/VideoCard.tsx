@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Heart, ExternalLink, Sparkles, TrendingUp } from "lucide-react";
+import { Eye, Heart, ExternalLink, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +11,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { generateVideoScript } from "@/app/actions/ai";
 
 interface VideoCardProps {
+  videoId: string;
   title: string;
   embedUrl: string;
   views: string;
@@ -18,8 +23,35 @@ interface VideoCardProps {
   platform: "tiktok" | "instagram";
 }
 
-export function VideoCard({ title, embedUrl, views, likes, tags, platform }: VideoCardProps) {
+type AiScript = {
+  hook: string;
+  script: string[];
+  cta: string;
+};
+
+export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platform }: VideoCardProps) {
   const cleanUrl = embedUrl.replace('/embed', '').replace('/v2', '');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiScript, setAiScript] = useState<AiScript | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const handleGenerateScript = async (forceRegenerate = false) => {
+    try {
+      setIsGenerating(true);
+      setAiError(null);
+      const result = await generateVideoScript(videoId, title, tags.map((tag) => tag.name), forceRegenerate);
+      setAiScript(result);
+    } catch (error) {
+      console.error("Erreur génération IA:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Une erreur est survenue pendant la génération. Réessaie dans un instant.";
+      setAiError(message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <Dialog>
@@ -112,7 +144,7 @@ export function VideoCard({ title, embedUrl, views, likes, tags, platform }: Vid
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
-                <span>Voir l'original</span>
+                <span>Voir l&apos;original</span>
                 <ExternalLink className="size-4" />
               </a>
             </div>
@@ -151,18 +183,61 @@ export function VideoCard({ title, embedUrl, views, likes, tags, platform }: Vid
             </div>
           </div>
 
-          {/* L'espace IA (Pour ta future mise à jour) */}
-          <div className="mt-auto p-6 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 flex flex-col items-center justify-center text-center gap-3">
+          {/* L'espace IA */}
+          <div className="mt-auto p-6 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 flex flex-col gap-4">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400">
               <Sparkles className="size-6" />
             </div>
             <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">Adapter cette vidéo à ton business</h3>
-            <p className="text-sm text-zinc-500 max-w-sm mb-2">
-              Bientôt : Notre IA générera un script sur-mesure étape par étape pour recréer cette vidéo dans ton établissement.
-            </p>
-            <button disabled className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg font-medium opacity-50 cursor-not-allowed text-sm">
-              Générer le script IA (Prochainement)
+
+            {!aiScript ? (
+              <p className="text-sm text-zinc-500">
+                Génère un script sur-mesure en fonction de ton activité, de ta ville et de ton offre.
+              </p>
+            ) : (
+              <div className="w-full space-y-4 text-left">
+                <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-100/70 dark:bg-blue-900/30 p-4">
+                  <p className="text-xs uppercase tracking-wider font-semibold text-blue-700 dark:text-blue-300 mb-1">Hook</p>
+                  <p className="font-semibold text-zinc-900 dark:text-zinc-100">{aiScript.hook}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-wider font-semibold text-zinc-500 mb-2">Script</p>
+                  <ol className="list-decimal pl-5 space-y-1 text-sm text-zinc-700 dark:text-zinc-200">
+                    {aiScript.script.map((line, index) => (
+                      <li key={`${line}-${index}`}>{line}</li>
+                    ))}
+                  </ol>
+                </div>
+
+                <p className="text-sm text-zinc-900 dark:text-zinc-100">
+                  <strong>CTA :</strong> {aiScript.cta}
+                </p>
+              </div>
+            )}
+
+            {aiError && (
+              <p className="text-sm text-red-600 dark:text-red-400">{aiError}</p>
+            )}
+
+            <button
+              type="button"
+              onClick={() => handleGenerateScript(false)}
+              disabled={isGenerating}
+              className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit"
+            >
+              {isGenerating ? "Génération en cours..." : aiScript ? "Recharger le script sauvegardé" : "Générer le script IA"}
             </button>
+            {aiScript && (
+              <button
+                type="button"
+                onClick={() => handleGenerateScript(true)}
+                disabled={isGenerating}
+                className="px-6 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit"
+              >
+                {isGenerating ? "Régénération..." : "Régénérer un nouveau script"}
+              </button>
+            )}
           </div>
 
         </div>

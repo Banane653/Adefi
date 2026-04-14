@@ -42,6 +42,7 @@ export default async function ParcourirPage({
           {videos.map((video) => (
             <VideoCard
               key={video.id}
+              videoId={video.id}
               title={video.title}
               embedUrl={video.url}
               views={video.views.toString()}

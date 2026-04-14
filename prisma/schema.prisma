@@ -54,3 +54,15 @@ enum TagType {
   NICHE
   FORMAT
 }
+
+model GeneratedScript {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  hook      String
+  script    String[]
+  cta       String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId]) // Pour qu'un utilisateur n'ait qu'un seul script par vidéo
+}

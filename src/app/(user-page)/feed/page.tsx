@@ -40,7 +40,7 @@ export default async function FeedPage() {
           Ton Flux Personnalisé ✨
         </h1>
         <p className="text-zinc-500 mt-2">
-          Basé sur ton profil : <span className="font-bold text-zinc-900 dark:text-zinc-100">{dbUser.businessType}</span> • <span className="font-bold text-zinc-900 dark:text-zinc-100">{dbUser.vibe}</span>
+          Basé sur ton profil : <span className="font-bold text-zinc-900 dark:text-zinc-100">{dbUser.businessType}</span> • <span className="font-bold text-zinc-900 dark:text-zinc-100">{dbUser.vibe?.join(', ')}</span>
         </p>
       </header>
 
@@ -53,6 +53,7 @@ export default async function FeedPage() {
           {videos.map((video) => (
             <VideoCard
                 key={video.id}
+                videoId={video.id}
                 title={video.title}
                 embedUrl={video.url}
                 // ✅ Conversion forcée en string car Prisma renvoie des Int (number)
