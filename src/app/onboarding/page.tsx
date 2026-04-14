@@ -1,5 +1,5 @@
 import { completeOnboarding } from "../actions/user";
-import { VIBE_TYPES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, VIBE_TYPES } from "@/lib/constants";
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -50,14 +50,19 @@ export default async function OnboardingPage() {
               <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
                 Secteur d&apos;activite
               </label>
-              <input
-                type="text"
+              <select
                 name="businessType"
-                placeholder="Ex: Institut de beaute, Plomberie..."
                 defaultValue={userProfile?.businessType ?? ""}
                 required
                 className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Choisis ton secteur</option>
+                {BUSINESS_CATEGORIES.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
