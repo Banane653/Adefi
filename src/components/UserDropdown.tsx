@@ -63,7 +63,7 @@ export function UserDropdown({
           Mon feed
         </DropdownMenuItem>
         
-        <DropdownMenuItem onClick={() => router.push("/profil")} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => router.push("/onboarding")} className="cursor-pointer">
           Modifier mon profil
         </DropdownMenuItem>
         
