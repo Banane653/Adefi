@@ -1,6 +1,7 @@
 import { completeOnboarding } from "../actions/user";
 import { VIBE_TYPES } from "@/lib/constants";
 import { createClient } from "@/utils/supabase/server";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 export default async function OnboardingPage() {
@@ -10,6 +11,9 @@ export default async function OnboardingPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+  const userProfile = await prisma.user.findUnique({
+    where: { id: user.id },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black p-4 py-12">
@@ -24,18 +28,18 @@ export default async function OnboardingPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Prénom</label>
-              <input name="firstName" type="text" required placeholder="Jean" className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
+              <input name="firstName" type="text" required placeholder="Jean" defaultValue={userProfile?.firstName ?? ""} className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Nom</label>
-              <input name="lastName" type="text" required placeholder="Dupont" className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
+              <input name="lastName" type="text" required placeholder="Dupont" defaultValue={userProfile?.lastName ?? ""} className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
 
           {/* Section Entreprise */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Nom de l&apos;entreprise</label>
-            <input name="companyName" type="text" required placeholder="Ma Super Boîte" className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
+            <input name="companyName" type="text" required placeholder="Ma Super Boîte" defaultValue={userProfile?.companyName ?? ""} className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <hr className="border-zinc-100 dark:border-zinc-800 my-2" />
@@ -50,6 +54,7 @@ export default async function OnboardingPage() {
                 type="text"
                 name="businessType"
                 placeholder="Ex: Institut de beaute, Plomberie..."
+                defaultValue={userProfile?.businessType ?? ""}
                 required
                 className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -62,6 +67,7 @@ export default async function OnboardingPage() {
                 type="text"
                 name="best_seller"
                 placeholder="Ex: Renovation de salle de bain, Pose de cils..."
+                defaultValue={userProfile?.best_seller ?? ""}
                 required
                 className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -77,7 +83,7 @@ export default async function OnboardingPage() {
               type="text"
               name="city"
               placeholder="Ex: Bordeaux (ou En ligne)"
-              defaultValue="En ligne"
+              defaultValue={userProfile?.city ?? "En ligne"}
               required
               className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -91,6 +97,7 @@ export default async function OnboardingPage() {
               </label>
               <select
                 name="production_capacity"
+                defaultValue={userProfile?.production_capacity ?? ""}
                 required
                 className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -107,6 +114,7 @@ export default async function OnboardingPage() {
               </label>
               <select
                 name="editing_level"
+                defaultValue={userProfile?.editing_level ?? ""}
                 required
                 className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -126,6 +134,7 @@ export default async function OnboardingPage() {
             </label>
             <select
               name="camera_people"
+              defaultValue={userProfile?.camera_people ?? ""}
               required
               className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -151,6 +160,7 @@ export default async function OnboardingPage() {
                     type="checkbox" 
                     name="vibe" 
                     value={vibe.value} 
+                    defaultChecked={userProfile?.vibe.includes(vibe.value)}
                     className="hidden" 
                   />
                   {vibe.label}
