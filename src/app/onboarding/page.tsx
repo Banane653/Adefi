@@ -1,7 +1,16 @@
 import { completeOnboarding } from "../actions/user";
 import { VIBE_TYPES } from "@/lib/constants";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black p-4 py-12">
       <div className="max-w-lg w-full bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800">
