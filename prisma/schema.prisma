@@ -16,6 +16,11 @@ model User {
   vibe         String[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  editing_level       String?  // Ex: "debutant", "intermediaire"
+  camera_people       String?  // Nombre de personnes (String ou Int selon ce que tu avais)
+  city                String?  // Ex: "Paris" ou "En ligne"
+  production_capacity String?  // Ex: "1-2", "3-4"
+  best_seller         String?  // Ex: "Pose complète volume russe"
 }
 
 model Video {
@@ -25,6 +30,13 @@ model Video {
   platform  String // "tiktok" ou "instagram"
   views     Int      @default(0)
   likes     Int      @default(0)
+  difficulty      String   // "debutant", "intermediaire", "avance", "sans_montage"
+  camera_presence String   // "face_cam", "multi", "b_roll"
+  sector_scope    String   // "generic" ou "specific"
+  compatible_sectors String[] // Ex: ["Beauté", "Restauration"]
+  business_goal   String   // "visibilite", "expertise", "conversion"
+  video_format    String   // "avant_apres", "trend", "conseil"
+  estimated_time  String?  // "15 - 30 sec"
   category  String // Pour le filtrage (ex: Restaurateur)
   vibe      String[] // Pour le filtrage (ex: Dynamique)
   tags      Tag[]

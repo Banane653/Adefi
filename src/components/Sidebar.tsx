@@ -18,6 +18,19 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
+
+        {/* LIEN : Planificateur */}
+        <Link
+          href="/planificateur"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+            isActive("/planificateur")
+              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" // Style Actif
+              : "text-zinc-700 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800" // Style Inactif
+          }`}
+        >
+          <span className="text-xl">🗓️</span>
+          Mon planning
+        </Link>
         {/* LIEN : POUR TOI */}
         <Link
           href="/feed"

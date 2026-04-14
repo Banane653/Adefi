@@ -41,7 +41,10 @@ export default function RootLayout({
       )}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans bg-white dark:bg-black text-zinc-900 dark:text-zinc-50">
+      <body
+        className="min-h-full flex flex-col font-sans bg-white dark:bg-black text-zinc-900 dark:text-zinc-50"
+        suppressHydrationWarning
+      >
         {/* La Navbar s'affichera sur toutes les pages */}
         <Navbar />
 

@@ -1,4 +1,4 @@
-import { addVideo, deleteVideo } from "../actions/video";
+import { addVideo } from "../actions/video";
 import prisma from "@/lib/prisma";
 import DeleteButton from "@/components/DeleteButton"; // Import du bouton
 import { BUSINESS_CATEGORIES, VIBE_TYPES } from "@/lib/constants";
@@ -78,6 +78,93 @@ export default async function AdminPage() {
                 ))}
               </div>
             </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Niveau de difficulte
+            </label>
+            <select name="difficulty" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+              <option value="">Selectionne un niveau</option>
+              <option value="debutant">Debutant (1 seul plan, pas de texte complexe)</option>
+              <option value="intermediaire">Intermediaire (cut ou texte)</option>
+              <option value="avance">Avance (transitions, rythme rapide, effets)</option>
+              <option value="sans_montage">Sans montage</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Objectif business
+            </label>
+            <select name="business_goal" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+              <option value="">Selectionne un objectif</option>
+              <option value="visibilite">Visibilite / Viralite</option>
+              <option value="expertise">Expertise / Confiance</option>
+              <option value="conversion">Conversion / Vente</option>
+              <option value="preuve_sociale">Preuve sociale</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+            Presence humaine
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <label className="flex items-center gap-2 p-3 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 cursor-pointer">
+              <input type="radio" name="camera_presence" value="face_cam" required />
+              <span className="text-sm">Face camera</span>
+            </label>
+            <label className="flex items-center gap-2 p-3 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 cursor-pointer">
+              <input type="radio" name="camera_presence" value="multi" required />
+              <span className="text-sm">Multi-personnes</span>
+            </label>
+            <label className="flex items-center gap-2 p-3 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 cursor-pointer">
+              <input type="radio" name="camera_presence" value="b_roll" required />
+              <span className="text-sm">B-Roll / Voix-off</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Ciblage sectoriel
+            </label>
+            <select name="sector_scope" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+              <option value="">Selectionne le ciblage</option>
+              <option value="generic">Generique / Adaptable</option>
+              <option value="specific">Specifique</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Secteurs compatibles (si specifique)
+            </label>
+            <input
+              name="compatible_sectors"
+              type="text"
+              placeholder="Ex: Beaute, Restauration"
+              className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+            Format de la video
+          </label>
+          <select name="video_format" required className="w-full p-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+            <option value="">Selectionne un format</option>
+            <option value="decouverte_metier">Decouverte metier</option>
+            <option value="tuto_conseil">Tuto / Conseil</option>
+            <option value="avant_apres">Avant / Apres</option>
+            <option value="trend_tiktok">Trend TikTok</option>
+            <option value="storytime">Storytime</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 gap-4">

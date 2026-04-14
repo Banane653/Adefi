@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import logo from "../../logo.png";
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 import { UserDropdown } from "./UserDropdown";
@@ -24,8 +26,11 @@ export default async function Navbar() {
       <div className="flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
         
         {/* Le Logo à gauche */}
-        <Link href="/feed" className="font-extrabold text-xl tracking-tighter">
-          Ade<span className="text-blue-600">Fi</span>
+        <Link href="/feed" className="flex items-center gap-2 font-extrabold text-xl tracking-tighter">
+          <Image src={logo} alt="Logo AdeFi" width={32} height={32} className="rounded-lg" priority />
+          <span>
+            Ade<span className="text-blue-600">Fi</span>
+          </span>
         </Link>
 
         {/* La zone de droite (Bouton Login OU Menu Déroulant) */}

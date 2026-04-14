@@ -1,5 +1,5 @@
 import { completeOnboarding } from "../actions/user";
-import { BUSINESS_CATEGORIES, VIBE_TYPES } from "@/lib/constants";
+import { VIBE_TYPES } from "@/lib/constants";
 
 export default function OnboardingPage() {
   return (
@@ -25,33 +25,110 @@ export default function OnboardingPage() {
 
           {/* Section Entreprise */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Nom de l'entreprise</label>
+            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">Nom de l&apos;entreprise</label>
             <input name="companyName" type="text" required placeholder="Ma Super Boîte" className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
 
           <hr className="border-zinc-100 dark:border-zinc-800 my-2" />
 
-          {/* Section Métier */}
+          {/* 1. SECTEUR D'ACTIVITE & PRODUIT PHARE */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+                Secteur d&apos;activite
+              </label>
+              <input
+                type="text"
+                name="businessType"
+                placeholder="Ex: Institut de beaute, Plomberie..."
+                required
+                className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+                Produit ou service le plus vendu
+              </label>
+              <input
+                type="text"
+                name="best_seller"
+                placeholder="Ex: Renovation de salle de bain, Pose de cils..."
+                required
+                className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* 2. VILLE */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-700 dark:text-zinc-300">
-              Secteur d'activité
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Ville de l&apos;activite <span className="text-zinc-500 font-normal">(Laisse &quot;En ligne&quot; si applicable)</span>
             </label>
-            <select 
-              name="businessType" 
-              required 
+            <input
+              type="text"
+              name="city"
+              placeholder="Ex: Bordeaux (ou En ligne)"
+              defaultValue="En ligne"
+              required
+              className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* 3. CAPACITE DE PRODUCTION & NIVEAU DE MONTAGE */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+                Capacite de production
+              </label>
+              <select
+                name="production_capacity"
+                required
+                className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Combien de videos par semaine ?</option>
+                <option value="1-2">1 a 2 videos (Rythme tranquille)</option>
+                <option value="3-4">3 a 4 videos (Rythme recommande)</option>
+                <option value="5+">5 videos ou + (Machine de guerre)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+                Niveau en montage
+              </label>
+              <select
+                name="editing_level"
+                required
+                className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Choisis ton niveau</option>
+                <option value="debutant">Debutant (Je n&apos;y connais rien)</option>
+                <option value="intermediaire">Intermediaire (Je sais couper & ajouter du texte)</option>
+                <option value="avance">Avance (Je maitrise les effets)</option>
+                <option value="sans_montage">Sans montage (1 seule prise)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 4. NOMBRE DE PERSONNES A LA CAMERA */}
+          <div>
+            <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
+              Combien de personnes sont pretes a se filmer ?
+            </label>
+            <select
+              name="camera_people"
+              required
               className="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Sélectionne...</option>
-              {BUSINESS_CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
+              <option value="">Selectionne un nombre</option>
+              <option value="1">1 personne (Moi uniquement)</option>
+              <option value="2-3">2 a 3 personnes (Moi et mon equipe)</option>
+              <option value="0">0 (Je veux faire des videos sans montrer mon visage)</option>
             </select>
           </div>
 
-          {/* Section Vibe */}
-          <div>
+          {/* 5. VIBE */}
+          <div className="mb-3">
             <label className="block text-sm font-medium mb-2 text-zinc-700 dark:text-zinc-300">
               Style de vidéos (Vibe) - <span className="text-zinc-500 font-normal">Choix multiple</span>
             </label>

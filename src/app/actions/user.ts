@@ -15,6 +15,11 @@ export async function completeOnboarding(formData: FormData) {
   const lastName = formData.get("lastName") as string;
   const companyName = formData.get("companyName") as string;
   const businessType = formData.get("businessType") as string;
+  const best_seller = formData.get("best_seller") as string;
+  const city = formData.get("city") as string;
+  const production_capacity = formData.get("production_capacity") as string;
+  const editing_level = formData.get("editing_level") as string;
+  const camera_people = formData.get("camera_people") as string;
   const vibe = formData.getAll("vibe") as string[];
 
   await prisma.user.upsert({
@@ -24,6 +29,11 @@ export async function completeOnboarding(formData: FormData) {
       lastName, 
       companyName, 
       businessType, 
+      best_seller,
+      city,
+      production_capacity,
+      editing_level,
+      camera_people,
       vibe 
     },
     create: { 
@@ -33,6 +43,11 @@ export async function completeOnboarding(formData: FormData) {
       lastName, 
       companyName, 
       businessType, 
+      best_seller,
+      city,
+      production_capacity,
+      editing_level,
+      camera_people,
       vibe 
     },
   });

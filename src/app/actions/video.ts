@@ -11,6 +11,12 @@ export async function addVideo(formData: FormData) {
     const url = formData.get("url") as string;
     const category = formData.get("category") as string; // ex: Restaurateur
     const vibe = formData.getAll("vibe") as string[];        // ex: Dynamique
+    const difficulty = formData.get("difficulty") as string;
+    const camera_presence = formData.get("camera_presence") as string;
+    const sector_scope = formData.get("sector_scope") as string;
+    const compatibleSectorsRaw = formData.get("compatible_sectors") as string;
+    const business_goal = formData.get("business_goal") as string;
+    const video_format = formData.get("video_format") as string;
     const views = parseInt(formData.get("views") as string) || 0;
     const likes = parseInt(formData.get("likes") as string) || 0;
     const tagsString = formData.get("tags") as string;
@@ -24,7 +30,7 @@ export async function addVideo(formData: FormData) {
       }
   
     // 2. Vérification de sécurité de base
-    if (!url || !platform || !title) {
+    if (!url || !platform || !title || !difficulty || !camera_presence || !sector_scope || !business_goal || !video_format) {
       console.error("Champs obligatoires manquants");
       return;
     }
@@ -32,6 +38,9 @@ export async function addVideo(formData: FormData) {
     try {
       const tagsArray = tagsString
         ? tagsString.split(",").map((t) => t.trim().toLowerCase()).filter(t => t !== "")
+        : [];
+      const compatible_sectors = sector_scope === "specific" && compatibleSectorsRaw
+        ? compatibleSectorsRaw.split(",").map((sector) => sector.trim()).filter((sector) => sector !== "")
         : [];
   
       // 3. On envoie TOUT à Prisma
@@ -42,6 +51,12 @@ export async function addVideo(formData: FormData) {
           platform: platform,   // ✅ Requis par ton schéma
           category,   // ✅ Requis pour ton feed
           vibe,       // ✅ Requis pour ton feed
+          difficulty,
+          camera_presence,
+          sector_scope,
+          compatible_sectors,
+          business_goal,
+          video_format,
           views,
           likes,
           tags: {
