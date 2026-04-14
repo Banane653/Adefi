@@ -31,7 +31,7 @@ export default async function DashboardPage() {
           Bienvenue, {dbUser.firstName} 👋
         </h1>
         <p className="text-zinc-500 text-lg mt-2">
-          Voici les meilleures idées de vidéos pour <span className="text-blue-600 font-semibold">{dbUser.companyName}</span>.
+          Bienvenue sur ton profil <span className="text-blue-600 font-semibold">{dbUser.companyName}</span>.
         </p>
       </header>
 
@@ -42,7 +42,7 @@ export default async function DashboardPage() {
         </div>
         <div className="p-6 bg-zinc-100 dark:bg-zinc-900 rounded-2xl border border-transparent dark:border-zinc-800">
           <p className="text-sm text-zinc-500 uppercase font-bold tracking-wider italic">Ton style</p>
-          <p className="text-xl font-medium">{dbUser.vibe}</p>
+          <p className="text-xl font-medium">{dbUser.vibe?.join(', ')}</p>
         </div>
       </div>
 
