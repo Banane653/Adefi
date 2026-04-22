@@ -20,3 +20,6 @@ export const BUSINESS_CATEGORIES = [
   export const ADMIN_EMAILS = [
     "natrist@hotmail.com",
   ];
+
+  export const SITE_URL = "https://www.adefi.be";
+  //export const SITE_URL = "http://localhost:3000";
