@@ -33,19 +33,6 @@ export default async function Navbar() {
           </span>
         </Link>
 
-        {/* Les liens de navigation au centre */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            Fonctionnement
-          </Link>
-          <Link href="#features" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            Services
-          </Link>
-          <Link href="#pricing" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
-            Tarifs
-          </Link>
-        </div>
-
         {/* La zone de droite (Bouton Login OU Menu Déroulant) */}
 
         <div>
