@@ -17,6 +17,7 @@ type GeneratedPlanTask = {
 };
 
 const GEMINI_TIMEOUT_MS = 25000;
+const DAY_ORDER = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
 function sanitizeJsonResponse(rawText: string) {
   return rawText
@@ -66,6 +67,29 @@ function inferProductionCount(capacity: string | null) {
   return 3;
 }
 
+function getDayOrder(day: string) {
+  const normalizedDay = day.trim().toLowerCase();
+  const dayIndex = DAY_ORDER.indexOf(normalizedDay);
+  return dayIndex === -1 ? DAY_ORDER.length : dayIndex;
+}
+
+function sortPlanTasks<T extends { day: string }>(tasks: T[]) {
+  return [...tasks].sort((a, b) => getDayOrder(a.day) - getDayOrder(b.day));
+}
+
+function normalizeInspirationKeywords(rawKeyword: string) {
+  const cleaned = rawKeyword
+    .toLowerCase()
+    .replace(/#/g, " ")
+    .split(/[,\n;/|]+/)
+    .flatMap((chunk) => chunk.split(/\s+/))
+    .map((part) => part.trim())
+    .filter((part) => part.length >= 3);
+
+  const uniqueKeywords = [...new Set(cleaned)].slice(0, 3);
+  return uniqueKeywords.length > 0 ? uniqueKeywords : ["tuto", "conseil"];
+}
+
 function normalizeGeneratedTasks(rawTasks: unknown[], wantedCount: number): GeneratedPlanTask[] {
   const valid = rawTasks
     .filter((item): item is Partial<GeneratedPlanTask> => typeof item === "object" && item !== null)
@@ -81,8 +105,8 @@ function normalizeGeneratedTasks(rawTasks: unknown[], wantedCount: number): Gene
       cta: typeof item.cta === "string" ? item.cta : "Contacte-nous en message privé.",
       format_inspiration:
         typeof item.format_inspiration === "string" && item.format_inspiration.trim().length > 0
-          ? item.format_inspiration.trim().toLowerCase()
-          : "tuto",
+          ? normalizeInspirationKeywords(item.format_inspiration).join(", ")
+          : "tuto, conseil",
     }));
 
   if (valid.length === 0) {
@@ -130,7 +154,7 @@ export async function getCurrentWeekPlan() {
   const { userId } = await getCurrentUserProfile();
   const { start, end } = getCurrentWeekRange();
 
-  return prisma.weeklyPlan.findFirst({
+  const plan = await prisma.weeklyPlan.findFirst({
     where: {
       userId,
       startDate: { gte: start },
@@ -141,9 +165,18 @@ export async function getCurrentWeekPlan() {
     },
     orderBy: { createdAt: "desc" },
   });
+
+  if (!plan) {
+    return null;
+  }
+
+  return {
+    ...plan,
+    tasks: sortPlanTasks(plan.tasks),
+  };
 }
 
-export async function generateWeekPlan() {
+async function createWeekPlan(forceRegenerate = false) {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY manquante.");
   }
@@ -162,7 +195,16 @@ export async function generateWeekPlan() {
   });
 
   if (existingPlan) {
-    return existingPlan;
+    if (!forceRegenerate) {
+      return {
+        ...existingPlan,
+        tasks: sortPlanTasks(existingPlan.tasks),
+      };
+    }
+
+    await prisma.weeklyPlan.delete({
+      where: { id: existingPlan.id },
+    });
   }
 
   const targetCount = inferProductionCount(profile.productionCapacity);
@@ -181,7 +223,7 @@ Contraintes:
 1) Retourne EXACTEMENT ${targetCount} idées.
 2) Chaque idée doit avoir: day, title, description, objective, hook, script, cta, format_inspiration.
 3) "script" = tableau de 3 à 5 phrases courtes.
-4) "format_inspiration" = un mot-clé court utile pour rechercher des vidéos similaires (ex: humour, tuto, avant_apres).
+4) "format_inspiration" = 2 ou 3 hashtags larges et utiles pour rechercher des vidéos similaires, séparés par des virgules (ex: humour, tuto, storytelling).
 5) Les jours doivent être variés dans la semaine (pas tous le même jour).
 6) Le ton doit être actionnable, concret et orienté résultats.
 
@@ -252,7 +294,18 @@ Retourne UNIQUEMENT un JSON valide sous forme de tableau d'objets.`;
   });
 
   revalidatePath("/planificateur");
-  return createdPlan;
+  return {
+    ...createdPlan,
+    tasks: sortPlanTasks(createdPlan.tasks),
+  };
+}
+
+export async function generateWeekPlan() {
+  return createWeekPlan(false);
+}
+
+export async function regenerateWeekPlan() {
+  return createWeekPlan(true);
 }
 
 export async function regenerateSingleTask(taskId: string) {
@@ -287,7 +340,8 @@ Conserve le même jour de publication: ${currentTask.day}
 
 Retourne UNIQUEMENT un objet JSON avec:
 day, title, description, objective, hook, script, cta, format_inspiration.
-Le script doit être un tableau de 3 à 5 phrases courtes.`;
+Le script doit être un tableau de 3 à 5 phrases courtes.
+"format_inspiration" doit contenir 2 ou 3 hashtags larges séparés par des virgules.`;
 
   const response = await withTimeout(
     ai.models.generateContent({
@@ -347,9 +401,34 @@ Le script doit être un tableau de 3 à 5 phrases courtes.`;
   return updatedTask;
 }
 
+export async function togglePlanTaskStatus(taskId: string) {
+  if (!taskId) {
+    throw new Error("taskId manquant.");
+  }
+
+  const profile = await getCurrentUserProfile();
+  const task = await prisma.planTask.findUnique({
+    where: { id: taskId },
+    include: { weeklyPlan: true },
+  });
+
+  if (!task || task.weeklyPlan.userId !== profile.userId) {
+    throw new Error("Tâche introuvable ou accès refusé.");
+  }
+
+  const nextStatus = task.status === "completed" ? "pending" : "completed";
+  const updatedTask = await prisma.planTask.update({
+    where: { id: taskId },
+    data: { status: nextStatus },
+  });
+
+  revalidatePath("/planificateur");
+  return updatedTask;
+}
+
 export async function getInspirationVideos(format_keyword: string) {
-  const normalized = format_keyword.trim().toLowerCase();
-  if (!normalized) {
+  const keywords = normalizeInspirationKeywords(format_keyword);
+  if (keywords.length === 0) {
     return [];
   }
 
@@ -357,16 +436,16 @@ export async function getInspirationVideos(format_keyword: string) {
 
   return prisma.video.findMany({
     where: {
-      OR: [
+      OR: keywords.flatMap((keyword) => [
         {
           video_format: {
-            contains: normalized,
+            contains: keyword,
             mode: "insensitive",
           },
         },
         {
           title: {
-            contains: normalized,
+            contains: keyword,
             mode: "insensitive",
           },
         },
@@ -374,7 +453,7 @@ export async function getInspirationVideos(format_keyword: string) {
           tags: {
             some: {
               name: {
-                contains: normalized,
+                contains: keyword,
                 mode: "insensitive",
               },
             },
@@ -382,10 +461,10 @@ export async function getInspirationVideos(format_keyword: string) {
         },
         {
           vibe: {
-            hasSome: [normalized],
+            hasSome: [keyword],
           },
         },
-      ],
+      ]),
     },
     select: {
       id: true,

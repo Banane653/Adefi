@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, CalendarDays, Eye, Heart, Loader2, Play, RefreshCw, Sparkles, Target, WandSparkles } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight, CalendarDays, CheckCircle2, Circle, Eye, Heart, Loader2, Play, RefreshCw, Sparkles, Target, WandSparkles } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { generateWeekPlan, getCurrentWeekPlan, getInspirationVideos, regenerateSingleTask } from "@/app/actions/planner";
+import { generateWeekPlan, getCurrentWeekPlan, getInspirationVideos, regenerateSingleTask, regenerateWeekPlan, togglePlanTaskStatus } from "@/app/actions/planner";
 
 type PlanTask = {
   id: string;
@@ -38,6 +39,8 @@ type InspirationVideo = {
   likes: number;
 };
 
+const DAY_ORDER = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+
 function formatWeekLabel(startDate: Date | string, endDate: Date | string) {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -45,11 +48,69 @@ function formatWeekLabel(startDate: Date | string, endDate: Date | string) {
   return `${formatter.format(start)} au ${formatter.format(end)}`;
 }
 
+function getDayOrder(day: string) {
+  const normalizedDay = day.trim().toLowerCase();
+  const dayIndex = DAY_ORDER.indexOf(normalizedDay);
+  return dayIndex === -1 ? DAY_ORDER.length : dayIndex;
+}
+
+function sortTasks(tasks: PlanTask[]) {
+  return [...tasks].sort((a, b) => getDayOrder(a.day) - getDayOrder(b.day));
+}
+
+function getInspirationTags(formatInspiration: string) {
+  return formatInspiration
+    .split(",")
+    .map((part) => part.trim().replace(/^#/, ""))
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function PlannerSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/40">
+        <CardContent className="px-8 py-10">
+          <div className="space-y-4">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-10 w-72" />
+            <Skeleton className="h-5 w-56" />
+          </div>
+        </CardContent>
+      </Card>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Card key={index} className="overflow-hidden border-zinc-200 dark:border-zinc-800">
+          <CardContent className="p-0">
+            <div className="flex flex-col md:flex-row md:items-center">
+              <div className="p-6 md:w-32 border-b md:border-b-0 md:border-r border-zinc-100 dark:border-zinc-800">
+                <Skeleton className="h-7 w-20" />
+              </div>
+              <div className="p-6 flex-1 space-y-3">
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-6 w-28" />
+                </div>
+                <Skeleton className="h-6 w-4/5" />
+              </div>
+              <div className="p-6 border-t md:border-t-0 md:border-l border-zinc-100 dark:border-zinc-800 flex gap-3">
+                <Skeleton className="h-9 w-28" />
+                <Skeleton className="h-9 w-32" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 export default function PlanificateurPage() {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
   const [isGeneratingWeek, setIsGeneratingWeek] = useState(false);
+  const [isRegeneratingWeek, setIsRegeneratingWeek] = useState(false);
   const [isRegeneratingTask, setIsRegeneratingTask] = useState(false);
+  const [isTogglingTaskId, setIsTogglingTaskId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [inspirationVideos, setInspirationVideos] = useState<InspirationVideo[]>([]);
   const [isLoadingInspiration, setIsLoadingInspiration] = useState(false);
@@ -60,12 +121,14 @@ export default function PlanificateurPage() {
     [plan, selectedTaskId]
   );
 
+  const sortedTasks = useMemo(() => (plan ? sortTasks(plan.tasks) : []), [plan]);
+
   const loadCurrentPlan = async () => {
     try {
       setIsLoadingPlan(true);
       setError(null);
       const existingPlan = await getCurrentWeekPlan();
-      setPlan((existingPlan as WeeklyPlan | null) ?? null);
+      setPlan(existingPlan ? ({ ...existingPlan, tasks: sortTasks(existingPlan.tasks) } as WeeklyPlan) : null);
     } catch (loadError) {
       const message = loadError instanceof Error ? loadError.message : "Impossible de charger ton plan.";
       setError(message);
@@ -104,7 +167,7 @@ export default function PlanificateurPage() {
       setIsGeneratingWeek(true);
       setError(null);
       const newPlan = await generateWeekPlan();
-      setPlan(newPlan as WeeklyPlan);
+      setPlan({ ...(newPlan as WeeklyPlan), tasks: sortTasks((newPlan as WeeklyPlan).tasks) });
     } catch (generationError) {
       const message = generationError instanceof Error ? generationError.message : "La generation de semaine a echoue.";
       setError(message);
@@ -123,9 +186,9 @@ export default function PlanificateurPage() {
         if (!current) return current;
         return {
           ...current,
-          tasks: current.tasks.map((task) =>
+          tasks: sortTasks(current.tasks.map((task) =>
             task.id === selectedTask.id ? ({ ...task, ...updated } as PlanTask) : task
-          ),
+          )),
         };
       });
     } catch (regenerationError) {
@@ -133,6 +196,44 @@ export default function PlanificateurPage() {
       setError(message);
     } finally {
       setIsRegeneratingTask(false);
+    }
+  };
+
+  const handleRegenerateWeek = async () => {
+    try {
+      setIsRegeneratingWeek(true);
+      setError(null);
+      setSelectedTaskId(null);
+      const newPlan = await regenerateWeekPlan();
+      setPlan({ ...(newPlan as WeeklyPlan), tasks: sortTasks((newPlan as WeeklyPlan).tasks) });
+    } catch (regenerationError) {
+      const message =
+        regenerationError instanceof Error ? regenerationError.message : "Impossible de regenerer la semaine.";
+      setError(message);
+    } finally {
+      setIsRegeneratingWeek(false);
+    }
+  };
+
+  const handleToggleTaskStatus = async (taskId: string) => {
+    try {
+      setIsTogglingTaskId(taskId);
+      setError(null);
+      const updated = await togglePlanTaskStatus(taskId);
+      setPlan((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          tasks: sortTasks(
+            current.tasks.map((task) => (task.id === taskId ? ({ ...task, ...updated } as PlanTask) : task))
+          ),
+        };
+      });
+    } catch (toggleError) {
+      const message = toggleError instanceof Error ? toggleError.message : "Impossible de mettre a jour cette tache.";
+      setError(message);
+    } finally {
+      setIsTogglingTaskId(null);
     }
   };
 
@@ -146,10 +247,32 @@ export default function PlanificateurPage() {
           </Badge>
           {plan ? (
             <>
-              <h1 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-2">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white mb-2">
                 Semaine du {formatWeekLabel(plan.startDate, plan.endDate)}
-              </h1>
-              <p className="text-lg text-zinc-500 font-medium">{plan.tasks.length} videos au programme</p>
+                  </h1>
+                  <p className="text-lg text-zinc-500 font-medium">{plan.tasks.length} videos au programme</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full md:w-auto"
+                  disabled={isRegeneratingWeek || isGeneratingWeek}
+                  onClick={handleRegenerateWeek}
+                >
+                  {isRegeneratingWeek ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Regeneration de la semaine...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="size-4 mr-2" />
+                      Regenerer la semaine
+                    </>
+                  )}
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -168,14 +291,7 @@ export default function PlanificateurPage() {
         )}
 
         {isLoadingPlan ? (
-          <Card className="border-dashed border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/30">
-            <CardContent className="py-16 flex items-center justify-center">
-              <div className="flex items-center gap-3 text-zinc-500">
-                <Loader2 className="size-5 animate-spin" />
-                Chargement de ton planning...
-              </div>
-            </CardContent>
-          </Card>
+          <PlannerSkeleton />
         ) : !plan ? (
           <Card className="overflow-hidden border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-800 text-white">
             <CardContent className="px-8 py-14 text-center">
@@ -206,12 +322,16 @@ export default function PlanificateurPage() {
               </Button>
             </CardContent>
           </Card>
+        ) : isGeneratingWeek || isRegeneratingWeek ? (
+          <PlannerSkeleton />
         ) : (
           <div className="space-y-4">
-            {plan.tasks.map((task) => (
+            {sortedTasks.map((task) => (
               <Card
                 key={task.id}
-                className="group overflow-hidden border bg-white dark:bg-zinc-900 hover:border-blue-400 hover:shadow-md transition-all duration-200 cursor-pointer"
+                className={`group overflow-hidden border bg-white dark:bg-zinc-900 hover:border-blue-400 hover:shadow-md transition-all duration-200 cursor-pointer ${
+                  task.status === "completed" ? "opacity-75 border-green-200 dark:border-green-900/50" : ""
+                }`}
                 onClick={() => setSelectedTaskId(task.id)}
                 role="button"
                 tabIndex={0}
@@ -228,6 +348,7 @@ export default function PlanificateurPage() {
                       <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                         {task.day}
                       </span>
+                      {task.status === "completed" && <CheckCircle2 className="size-4 text-green-600 md:hidden" />}
                     </div>
 
                     <div className="p-4 md:p-6 flex-grow flex flex-col justify-center">
@@ -235,15 +356,41 @@ export default function PlanificateurPage() {
                         <Badge variant="secondary" className="font-bold bg-zinc-100 dark:bg-zinc-800">
                           {task.format_inspiration}
                         </Badge>
+                        <Badge
+                          variant="outline"
+                          className={task.status === "completed" ? "border-green-300 text-green-700 dark:border-green-900 dark:text-green-300" : ""}
+                        >
+                          {task.status === "completed" ? "Termine" : "A faire"}
+                        </Badge>
                         <span className="text-xs font-medium text-zinc-500 flex items-center gap-1">
                           <Target className="size-3" />
                           {task.objective}
                         </span>
                       </div>
-                      <p className="font-semibold text-zinc-800 dark:text-zinc-200">{task.title}</p>
+                      <p className={`font-semibold text-zinc-800 dark:text-zinc-200 ${task.status === "completed" ? "line-through decoration-zinc-400" : ""}`}>
+                        {task.title}
+                      </p>
                     </div>
 
-                    <div className="p-4 md:p-6 bg-zinc-50/50 dark:bg-zinc-950/50 border-t md:border-t-0 md:border-l border-zinc-100 dark:border-zinc-800 flex justify-end md:justify-center">
+                    <div className="p-4 md:p-6 bg-zinc-50/50 dark:bg-zinc-950/50 border-t md:border-t-0 md:border-l border-zinc-100 dark:border-zinc-800 flex flex-col md:flex-row gap-3 justify-end md:justify-center">
+                      <Button
+                        variant={task.status === "completed" ? "secondary" : "outline"}
+                        className="w-full md:w-auto font-bold shadow-none"
+                        disabled={isTogglingTaskId === task.id}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void handleToggleTaskStatus(task.id);
+                        }}
+                      >
+                        {isTogglingTaskId === task.id ? (
+                          <Loader2 className="size-4 mr-2 animate-spin" />
+                        ) : task.status === "completed" ? (
+                          <Circle className="size-4 mr-2" />
+                        ) : (
+                          <CheckCircle2 className="size-4 mr-2" />
+                        )}
+                        {task.status === "completed" ? "Marquer non fait" : "Marquer termine"}
+                      </Button>
                       <Button className="w-full md:w-auto font-bold shadow-none">
                         Voir le script
                         <ArrowRight className="size-4 ml-2" />
@@ -259,40 +406,73 @@ export default function PlanificateurPage() {
 
       <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTaskId(null)}>
         {selectedTask && (
-          <DialogContent className="sm:max-w-[840px] h-[90vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
+          <DialogContent className="w-[calc(100%-1rem)] sm:max-w-[840px] h-[90vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800">
             <DialogTitle className="sr-only">Plan de tournage : {selectedTask.title}</DialogTitle>
             <DialogDescription className="sr-only">Details, script et inspirations pour cette tache.</DialogDescription>
 
-            <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex justify-between items-start gap-4">
-              <div>
+            <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
+              <div className="min-w-0 flex-1">
                 <Badge className="mb-3 uppercase tracking-wider font-bold bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
                   {selectedTask.day}
                 </Badge>
-                <h2 className="text-xl md:text-2xl font-black leading-tight text-zinc-900 dark:text-white mb-2">
+                <h2 className="text-xl md:text-2xl font-black leading-tight text-zinc-900 dark:text-white mb-2 break-words">
                   {selectedTask.title}
                 </h2>
-                <Badge variant="outline" className="font-medium">
-                  Objectif : {selectedTask.objective}
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="font-medium">
+                    Objectif : {selectedTask.objective}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={`font-medium ${selectedTask.status === "completed" ? "border-green-300 text-green-700 dark:border-green-900 dark:text-green-300" : ""}`}
+                  >
+                    {selectedTask.status === "completed" ? "Termine" : "A faire"}
+                  </Badge>
+                </div>
               </div>
-              <Button
-                onClick={handleRegenerateTask}
-                disabled={isRegeneratingTask}
-                variant="outline"
-                className="shrink-0 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/40"
-              >
-                {isRegeneratingTask ? (
-                  <>
-                    <Loader2 className="size-4 mr-2 animate-spin" />
-                    Regeneration...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="size-4 mr-2" />
-                    🔄 Regenerer cette idee
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-1 gap-3 w-full md:w-auto md:min-w-[240px] shrink-0">
+                <Button
+                  onClick={() => void handleToggleTaskStatus(selectedTask.id)}
+                  disabled={isTogglingTaskId === selectedTask.id}
+                  variant={selectedTask.status === "completed" ? "secondary" : "default"}
+                  className="w-full font-bold whitespace-normal h-auto min-h-9 py-2"
+                >
+                  {isTogglingTaskId === selectedTask.id ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Mise a jour...
+                    </>
+                  ) : selectedTask.status === "completed" ? (
+                    <>
+                      <Circle className="size-4 mr-2" />
+                      Marquer non fait
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="size-4 mr-2" />
+                      Marquer comme termine
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleRegenerateTask}
+                  disabled={isRegeneratingTask}
+                  variant="outline"
+                  className="w-full font-bold whitespace-normal h-auto min-h-9 py-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300 dark:hover:bg-blue-950/40"
+                >
+                  {isRegeneratingTask ? (
+                    <>
+                      <Loader2 className="size-4 mr-2 animate-spin" />
+                      Regeneration...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="size-4 mr-2" />
+                      🔄 Regenerer cette idee
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             <ScrollArea className="flex-grow">
@@ -339,8 +519,15 @@ export default function PlanificateurPage() {
                 <div>
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-zinc-900 dark:text-white">
                     <Play className="size-5 text-blue-500" />
-                    Inspiration : #{selectedTask.format_inspiration}
+                    Inspiration
                   </h3>
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {getInspirationTags(selectedTask.format_inspiration).map((tag) => (
+                      <Badge key={tag} variant="secondary" className="font-medium">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
                   {isLoadingInspiration ? (
                     <div className="flex items-center gap-2 text-zinc-500">
                       <Loader2 className="size-4 animate-spin" />
