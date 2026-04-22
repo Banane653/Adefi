@@ -22,6 +22,7 @@ model User {
   production_capacity String?  // Ex: "1-2", "3-4"
   best_seller         String?  // Ex: "Pose complète volume russe"
   weeklyPlans         WeeklyPlan[]
+  feedbacks           Feedback[]
 }
 
 model WeeklyPlan {
@@ -91,4 +92,14 @@ model GeneratedScript {
   createdAt DateTime @default(now())
 
   @@unique([userId, videoId]) // Pour qu'un utilisateur n'ait qu'un seul script par vidéo
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  category  String   // "bug", "feature", "suggestion", "autre"
+  imageUrl  String?  // Si l'utilisateur ajoute une capture d'écran
+  createdAt DateTime @default(now())
 }

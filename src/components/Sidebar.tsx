@@ -56,6 +56,19 @@ export function Sidebar() {
           <span className="text-xl">🔍</span>
           Parcourir
         </Link>
+
+        {/* LIEN : Planificateur */}
+        <Link
+          href="/feedback"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
+            isActive("/feedback")
+              ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" // Style Actif
+              : "text-zinc-700 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800" // Style Inactif
+          }`}
+        >
+          <span className="text-xl">📮</span>
+          Faire un FeedBack
+        </Link>
       </nav>
 
       <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-400 text-center">
