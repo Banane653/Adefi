@@ -43,7 +43,7 @@ export async function submitFeedback(formData: FormData) {
     // 4. Envoi de l'email via Resend
     const { error: resendError } = await resend.emails.send({
       from: "Feedback App <onboarding@resend.dev>", 
-      to: ["natrist@hotmail.com"], // ⚠️ Toujours ton email ici
+      to: ["contact@adefi.be"], // ⚠️ Toujours ton email ici
       subject: `🚨 Retour Beta de ${userName} (${category})`,
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
