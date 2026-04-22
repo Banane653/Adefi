@@ -21,6 +21,32 @@ model User {
   city                String?  // Ex: "Paris" ou "En ligne"
   production_capacity String?  // Ex: "1-2", "3-4"
   best_seller         String?  // Ex: "Pose complète volume russe"
+  weeklyPlans         WeeklyPlan[]
+}
+
+model WeeklyPlan {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime   @default(now())
+  tasks     PlanTask[]
+}
+
+model PlanTask {
+  id                 String     @id @default(cuid())
+  weeklyPlanId       String
+  weeklyPlan         WeeklyPlan @relation(fields: [weeklyPlanId], references: [id], onDelete: Cascade)
+  day                String
+  title              String
+  description        String
+  objective          String
+  hook               String
+  script             String[]
+  cta                String
+  status             String     @default("pending")
+  format_inspiration String
 }
 
 model Video {
