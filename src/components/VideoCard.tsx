@@ -56,19 +56,17 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
   return (
     <Dialog>
       {/* ========================================== */}
-      {/* 1. LA PETITE CARTE (VUE MINIATURE/DASHBOARD) */}
+      {/* 1. LA PETITE CARTE (VUE MINIATURE COMPACTE) */}
       {/* ========================================== */}
       <Card className="group relative overflow-hidden border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm hover:shadow-md transition-all flex flex-col h-full hover:border-blue-500/50">
         
-        {/* LE BOUTON FANTÔME : C'est lui qui ouvre la modale sans casser le HTML */}
-        {/* On n'utilise PLUS asChild ici, on laisse Radix créer un vrai <button> */}
         <DialogTrigger className="absolute inset-0 z-20 w-full h-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" aria-label={`Voir les détails de ${title}`}>
           <span className="sr-only">Ouvrir</span>
         </DialogTrigger>
 
         <CardHeader className="p-0">
-          <div className="aspect-[9/16] w-full bg-zinc-100 dark:bg-zinc-900 relative overflow-hidden">
-            {/* J'ai gardé pointer-events-none pour que le clic passe à travers jusqu'au bouton fantôme */}
+          {/* CHANGEMENT ICI : aspect-square (1:1) et fond noir pour les bandes */}
+          <div className="aspect-square w-full bg-black relative overflow-hidden">
             <iframe
               src={embedUrl}
               className="absolute inset-0 w-full h-full border-none pointer-events-none opacity-90 group-hover:opacity-100 transition-opacity"
@@ -78,32 +76,34 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
           </div>
         </CardHeader>
         
-        <CardContent className="p-3 flex-grow relative z-10 pointer-events-none">
-          <CardTitle className="text-sm font-bold leading-tight mb-2 line-clamp-2">
+        {/* CHANGEMENT ICI : p-2 au lieu de p-3 pour tasser la carte */}
+        <CardContent className="p-2 flex-grow relative z-10 pointer-events-none">
+          <CardTitle className="text-xs font-bold leading-tight mb-1.5 line-clamp-2">
             {title}
           </CardTitle>
           <div className="flex flex-wrap gap-1">
-            {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag.name} variant="secondary" className="text-[9px] px-1.5 py-0 uppercase tracking-wider font-bold">
+            {/* CHANGEMENT ICI : On limite à 2 tags maximum pour gagner de la hauteur */}
+            {tags.slice(0, 2).map((tag) => (
+              <Badge key={tag.name} variant="secondary" className="text-[8px] px-1 py-0 uppercase tracking-wider font-bold">
                 #{tag.name}
               </Badge>
             ))}
-            {tags.length > 3 && <span className="text-[10px] text-zinc-500 font-medium">+{tags.length - 3}</span>}
+            {tags.length > 2 && <span className="text-[9px] text-zinc-500 font-medium">+{tags.length - 2}</span>}
           </div>
         </CardContent>
 
-        <CardFooter className="p-3 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-900 mt-auto bg-zinc-50/50 dark:bg-zinc-900/50 relative z-10 pointer-events-none">
-          <div className="flex gap-3">
-            <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400 text-xs font-medium">
-              <Eye className="size-3.5" />
+        <CardFooter className="p-2 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-900 mt-auto bg-zinc-50/50 dark:bg-zinc-900/50 relative z-10 pointer-events-none">
+          <div className="flex gap-2">
+            <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400 text-[10px] font-medium">
+              <Eye className="size-3" />
               <span>{views}</span>
             </div>
-            <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400 text-xs font-medium">
-              <Heart className="size-3.5" />
+            <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400 text-[10px] font-medium">
+              <Heart className="size-3" />
               <span>{likes}</span>
             </div>
           </div>
-          <Badge variant="outline" className="capitalize text-[10px] px-1.5 py-0">
+          <Badge variant="outline" className="capitalize text-[8px] px-1 py-0 border-zinc-300 dark:border-zinc-700">
             {platform}
           </Badge>
         </CardFooter>
@@ -111,10 +111,10 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
 
       {/* ========================================== */}
       {/* 2. LA FENÊTRE MODALE (VUE DÉTAILLÉE HORIZONTALE) */}
+      {/* Le code de la modale reste strictement identique */}
       {/* ========================================== */}
       <DialogContent className="sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] xl:max-w-[1100px] h-[90vh] md:h-[80vh] p-0 overflow-hidden flex flex-col md:flex-row bg-white dark:bg-zinc-950 gap-0">
         
-        {/* PARTIE GAUCHE : LA VIDÉO (Jouable) */}
         <div className="w-full md:w-2/5 bg-zinc-100 dark:bg-zinc-900 h-[40vh] md:h-full flex items-center justify-center p-4 md:p-8 relative border-r border-zinc-200 dark:border-zinc-800">
           <div className="aspect-[9/16] w-full max-w-[320px] h-full relative rounded-2xl overflow-hidden shadow-2xl bg-black">
             <iframe
@@ -129,10 +129,7 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
           </div>
         </div>
 
-        {/* PARTIE DROITE : LES INFOS & ANALYSES */}
         <div className="w-full md:w-3/5 h-full overflow-y-auto p-6 md:p-8 flex flex-col gap-8">
-          
-          {/* En-tête de la modale */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <Badge variant="outline" className="capitalize border-blue-200 text-blue-700 bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:bg-blue-950/50">
@@ -152,7 +149,6 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
               {title}
             </DialogTitle>
 
-            {/* Description invisible visuellement (sr-only) mais lue par les navigateurs pour retirer l'erreur */}
             <DialogDescription className="sr-only">
               Statistiques et informations détaillées pour la vidéo {title} provenant de {platform}.
             </DialogDescription>
@@ -165,7 +161,6 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
             </div>
           </div>
 
-          {/* Statistiques clés */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col gap-1">
               <div className="flex items-center gap-2 text-zinc-500 mb-1">
@@ -183,9 +178,8 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
             </div>
           </div>
 
-          {/* L'espace IA */}
           <div className="mt-auto p-6 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 flex flex-col gap-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400 w-fit">
               <Sparkles className="size-6" />
             </div>
             <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">Adapter cette vidéo à ton business</h3>
@@ -224,7 +218,7 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
               type="button"
               onClick={() => handleGenerateScript(false)}
               disabled={isGenerating}
-              className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit"
+              className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit transition-colors"
             >
               {isGenerating ? "Génération en cours..." : aiScript ? "Recharger le script sauvegardé" : "Générer le script IA"}
             </button>
@@ -233,7 +227,7 @@ export function VideoCard({ videoId, title, embedUrl, views, likes, tags, platfo
                 type="button"
                 onClick={() => handleGenerateScript(true)}
                 disabled={isGenerating}
-                className="px-6 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit"
+                className="px-6 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-lg font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed w-fit hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
               >
                 {isGenerating ? "Régénération..." : "Régénérer un nouveau script"}
               </button>
